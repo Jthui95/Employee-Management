@@ -34,7 +34,6 @@ connection.connect(function(err) {
           "View all departments",
           "View all roles",
           "Add employee",
-          "Remove employee",
           "Update employee",
           "Exit",
         ]
@@ -56,13 +55,11 @@ connection.connect(function(err) {
         case "Add employee":
           addEmployee();
           break;
-  
-        case "Remove employee":
-          removeEmployee();
-          break;
+
         case "Update employee":
           updateEmployee();
           break;
+          
         case "Exit":
             exit();
             break;
@@ -96,3 +93,117 @@ function viewEmployeeDepartment(){
     runSearch();
   }
   
+  function addEmployee(){
+    inquirer.prompt([{
+      type: "input",
+      message: "Enter the new employee's first name",
+      name: "firstname",
+      validate: function (answer) {
+        if (answer.length < 1) {
+            return console.log("Please enter a first name");
+        }
+        return true;
+    }
+    },
+    {
+      type: "input",
+      message: "Enter the new employee's last name",
+      name: "lastname",
+      validate: function (answer) {
+        if (answer.length < 1) {
+            return console.log("Please enter a last name.");
+        }
+        return true;
+    }
+    },
+    {
+      type: "input",
+      message: "Enter Employee ID",
+      name: "employeeid",
+      default: '1',
+    validate: function (answer) {
+        if (answer.length < 1) {
+            return console.log("Please enter a valid ID.");
+        }
+        return true;
+    }
+  },
+  ])
+  .then(function(res){
+    connection.query("INSERT INTO employees SET ?",{
+        first_name: res.firstname,
+        last_name: res.lastname,
+        role_id: res.employeeid,
+        manager_id: 0,
+      },
+      console.log("\n Adding new employee. \n"),
+      function(err,res) {
+        if (err) {
+          throw err;
+        }
+        console.table(res);
+      }
+    );
+    runSearch();
+    });
+  }
+  function updateEmployee() {
+    let employees = [];
+    connection.query("SELECT * FROM employees", function(err, res) {
+      
+      for (let i = 0; i < res.length; i++) {
+        let employeeString =
+          res[i].id + " " + res[i].first_name + " " + res[i].last_name;
+        employees.push(employeeString);
+      }
+      
+  
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Select the Employee you would like to promote.",
+            name: "employees",
+            choices: employees
+          },
+          {
+            type: "list",
+            message: "Please Select the new role.",
+            choices: ["Software Engineer", "Analog Engineer", "Manager" ],
+            name: "newjob"
+          }
+        ])
+        .then(function(res) {
+          console.log("Updating", res);
+          const idToUpdate = {};
+          idToUpdate.employeeId = parseInt(res.employees.split("")[0]);
+          if (res.newjob === "Software Engineer") {
+            idToUpdate.role_id = 2;
+          }
+          if (res.newjob === "Analog Engineer") {
+            idToUpdate.role_id = 3;
+          }
+          if (res.newjob === "Manager") {
+            idToUpdate.role_id = 4;
+          } else if (res.newjob=== "New Trainee") {
+            idToUpdate.role_id = 1;
+          }
+          connection.query(
+            "UPDATE employees SET role_id = ? WHERE id = ?",
+            [idToUpdate.role_id, idToUpdate.employeeId],
+            function(err, data) {
+              runSearch();
+            }
+          );
+        })
+    });
+  }
+
+function exit() {
+  connection.end(function(err) {
+    if (err) {
+      return console.log('error:' + err.message);
+    }
+    console.log('Close the database connection.');
+  });
+}

@@ -1,10 +1,10 @@
 -- Edit these
 
-INSERT INTO department (name)
-VALUES("Coding"), ("Engineer"), ("Tester");
+INSERT INTO departments (name)
+VALUES("Trainee"), ("Coding"), ("Engineer"), ("Management");
 
-INSERT INTO role (title, salary, department_id)
-VALUES("Software Engineer",100000, 1), ("Analog Engineer", 90000, 2), ("", 50000, 3);
+INSERT INTO roles (title, salary, department_id)
+VALUES("New Hire",50000, 1),("Software Engineer",100000, 2), ("Analog Engineer", 90000, 3), ("Manager", 250000, 4);
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES("Jonathan", "Smith",10, 1), ("Shirley", "Nguyen",11, 1), ("James","Kim", 12, 1);
+INSERT INTO employees (first_name, last_name, role_id, manager_id)
+VALUES("Jonathan", "Smith", 2, 0 ), ("Shirley", "Nguyen", 3 , 0), ("James","Kim", 4, 1 );
